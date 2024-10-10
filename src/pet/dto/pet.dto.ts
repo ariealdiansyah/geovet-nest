@@ -23,7 +23,7 @@ export class CreatePetDto {
   sex: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   characteristic: string;
 }
 

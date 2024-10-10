@@ -99,23 +99,12 @@ export class TransactionDetailService {
     return trxId;
   }
 
-  async getTransactionDetailByTransactionId(id: string) {
+  async getTransactionDetailByTransactionId(id: Types.ObjectId) {
     const objectId = new Types.ObjectId(id);
 
     const res = await this.transactionDetailModel
       .find({ transactionId: objectId })
-      .populate({
-        path: 'medicineId',
-        select: 'name price',
-        model: 'Medicine',
-      })
-      .populate({
-        path: 'groceriesId',
-        select: 'name price',
-        model: 'Groceries',
-      })
-      .select('amount price totalPrice')
-      .lean()
+      .populate('medicineId groceriesId')
       .exec();
 
     if (!res || res.length === 0) {

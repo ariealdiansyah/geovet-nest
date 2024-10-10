@@ -20,6 +20,18 @@ export class Transaction {
   totalAmount: number;
 
   @Prop({
+    type: Number,
+    default: 0,
+  })
+  totalPrice: number;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
+  discount: number;
+
+  @Prop({
     type: String,
     default: null,
   })

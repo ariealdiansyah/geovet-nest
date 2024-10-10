@@ -73,7 +73,7 @@ export class MedicineService {
       ],
     };
 
-    const [data, total] = await Promise.all([
+    const [list, total] = await Promise.all([
       this.medicineModel
         .find(filterQuery)
         .skip((page - 1) * rowsPerPage)
@@ -87,7 +87,13 @@ export class MedicineService {
       throw new BadRequestException('Page and rowsPerPage are required');
     }
 
-    return { data, total };
+    const pagination = {
+      page: parseInt(page),
+      rowsPerPage: parseInt(rowsPerPage),
+      total,
+    };
+
+    return { list, pagination };
   }
 
   async getItemById(id: string) {

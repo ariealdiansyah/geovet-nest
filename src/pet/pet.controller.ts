@@ -35,7 +35,18 @@ export class PetController {
     return await this.petService.getAll();
   }
 
-  @Get(':customerId')
+  @Post('generate-medical-number/:id')
+  async countPets(@Param('id') id: string) {
+    return this.petService.generateMedicalNumber(id);
+  }
+
+  @Get('/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async getPetById(@Param('id') id: string) {
+    return await this.petService.getPetById(id);
+  }
+
+  @Get('/customer/:customerId')
   @UseGuards(AuthGuard('jwt'))
   async getPetByCustomerId(@Param('customerId') id: string) {
     return await this.petService.getListPetByCustomerId(id);

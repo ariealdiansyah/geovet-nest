@@ -55,7 +55,14 @@ export class PetService {
   }
 
   async getAll() {
-    const res = await this.petModel.find().exec();
+    const res = await this.petModel
+      .find()
+      .select('medicalNumber name type sex characteristic')
+      .populate({
+        path: 'customerId',
+        select: 'name address phone',
+      })
+      .exec();
 
     if (res === null || res === undefined) {
       throw new InternalServerErrorException(
@@ -83,11 +90,11 @@ export class PetService {
     const [list, total] = await Promise.all([
       this.petModel
         .find(filterQuery)
-        .skip((page - 1) * rowsPerPage)
+        .skip((parseInt(page) - 1) * parseInt(rowsPerPage))
         .limit(parseInt(rowsPerPage, 10))
         .populate({
           path: 'customerId',
-          select: 'name address',
+          select: 'name address phone',
         })
         .lean()
         .exec(),
@@ -105,11 +112,24 @@ export class PetService {
       customerId: undefined,
     }));
 
-    return { list: modifiedPets, total };
+    const pagination = {
+      page: parseInt(page),
+      rowsPerPage: parseInt(rowsPerPage),
+      total,
+    };
+
+    return { list: modifiedPets, pagination };
   }
 
   async getPetById(id: string) {
-    const res = await this.petModel.findById(id);
+    const res = await this.petModel
+      .findById(id)
+      .populate({
+        path: 'customerId',
+        select: 'name address',
+      })
+      .lean()
+      .exec();
     if (!res) {
       throw new NotFoundException('Customer Not Found');
     }
@@ -180,5 +200,33 @@ export class PetService {
     } else {
       throw new NotFoundException('Customer not found');
     }
+  }
+
+  async generateMedicalNumber(id: string) {
+    const petData = await this.petModel.findById(id).exec();
+    if (petData.medicalNumber) {
+      throw new ConflictException('Medical number already exist');
+    }
+    const getNumber = await this.countPetsWithTypeAndMedicalNumber(
+      petData.type,
+    );
+    const number = getNumber + 1;
+    const medNumber = petData.type + number.toString().padStart(4, '0');
+    petData.medicalNumber = medNumber;
+    const res = petData.save();
+    return res;
+  }
+
+  async countPetsWithTypeAndMedicalNumber(type: string) {
+    const dataExist = await this.petModel.find({ type });
+    if (!dataExist || dataExist.length === 0) {
+      throw new NotFoundException('Please make sure the pet is exist');
+    }
+    return this.petModel
+      .countDocuments({
+        type: type,
+        medicalNumber: { $ne: null },
+      })
+      .exec();
   }
 }

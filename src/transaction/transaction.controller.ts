@@ -34,6 +34,21 @@ export class TransactionController {
     return this.transactionService.getByQuery(query);
   }
 
+  @Get('summary')
+  async getSummary(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return this.transactionService.getSummary(start, end);
+  }
+
+  @Get('today-summary')
+  async getTodaySummary() {
+    return this.transactionService.getTodaySummary();
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   async getDetailTransaction(@Param('id') id: string) {

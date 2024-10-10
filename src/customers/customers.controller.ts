@@ -44,6 +44,12 @@ export class CustomersController {
     return await this.customersService.getAll();
   }
 
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  async getDetailCustomer(@Param('id') id: string) {
+    return await this.customersService.getCustomerById(id);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   async update(

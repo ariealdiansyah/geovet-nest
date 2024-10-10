@@ -22,6 +22,14 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   totalAmount: number;
 
+  @IsNumber()
+  @IsNotEmpty()
+  totalPrice: number;
+
+  @IsNumber()
+  @IsOptional()
+  discount: number;
+
   @IsString()
   @IsOptional()
   status: string;

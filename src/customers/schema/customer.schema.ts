@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
   timestamps: true,
 })
 export class Customers {
-  _id: mongoose.Schema.Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
 
   @Prop({
     type: String,

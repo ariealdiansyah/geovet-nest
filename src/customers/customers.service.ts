@@ -81,7 +81,7 @@ export class CustomersService {
     const [list, total] = await Promise.all([
       this.customerModel
         .find(filterQuery)
-        .skip((page - 1) * rowsPerPage)
+        .skip((parseInt(page) - 1) * parseInt(rowsPerPage))
         .limit(parseInt(rowsPerPage, 10))
         // .populate('customerId') // add this if need populate data from other collection
         .exec(),
@@ -93,11 +93,17 @@ export class CustomersService {
       throw new BadRequestException('Page and rowsPerPage are required');
     }
 
-    return { list, total };
+    const pagination = {
+      page: parseInt(page),
+      rowsPerPage: parseInt(rowsPerPage),
+      total,
+    };
+
+    return { list, pagination };
   }
 
   async getCustomerById(id: string) {
-    const res = await this.customerModel.findById(id);
+    const res = await this.customerModel.findById(id).lean().exec();
     if (!res) {
       throw new NotFoundException('Customer Not Found');
     }
@@ -131,24 +137,17 @@ export class CustomersService {
   }
 
   async remove(id: string) {
-    const session = await this.connection.startSession();
-    session.startTransaction();
-
     const res = await this.customerModel.findByIdAndDelete(
       {
         _id: id as unknown as mongoose.Types.ObjectId,
       },
-      { new: true, session },
+      { new: true },
     );
     if (res) {
-      session.commitTransaction();
-      session.endSession();
       return {
         message: 'Sukses hapus pelanggan',
       };
     } else {
-      session.abortTransaction();
-      session.endSession();
       throw new NotFoundException('Customer not found');
     }
   }

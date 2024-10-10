@@ -4,14 +4,20 @@ import mongoose, { Types } from 'mongoose';
 @Schema({
   timestamps: true,
 })
-export class MedicalRecord {
+export class PetHotel {
   _id: mongoose.Types.ObjectId;
 
   @Prop({
     type: Date,
     default: null,
   })
-  medicalDate: Date;
+  checkinDate: Date;
+
+  @Prop({
+    type: Date,
+    default: null,
+  })
+  checkoutDate: Date;
 
   @Prop({
     type: Types.ObjectId,
@@ -19,7 +25,7 @@ export class MedicalRecord {
     required: true,
     default: null,
   })
-  petId: Types.ObjectId;
+  petId: string;
 
   @Prop({
     type: Types.ObjectId,
@@ -27,19 +33,13 @@ export class MedicalRecord {
     required: true,
     default: null,
   })
-  customerId: Types.ObjectId;
+  customerId: string;
 
   @Prop({
     type: String,
     default: null,
   })
   temperature: string;
-
-  @Prop({
-    type: String,
-    default: null,
-  })
-  age: string;
 
   @Prop({
     type: Number,
@@ -51,32 +51,31 @@ export class MedicalRecord {
     type: String,
     default: null,
   })
-  anamnesis: string;
+  healthStatus: string;
 
   @Prop({
     type: String,
     default: null,
   })
-  diagnosis: string;
+  healthInfo: string;
+
+  @Prop({
+    type: Number,
+    default: null,
+  })
+  duration: number;
 
   @Prop({
     type: String,
     default: null,
   })
-  action: string;
+  status: string;
 
   @Prop({
-    type: String,
+    type: Number,
     default: null,
   })
-  medicalPrescription: string;
-
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'PetHotel',
-    default: null,
-  })
-  petHotelId: Types.ObjectId;
+  totalPrice: number;
 
   @Prop({
     type: Boolean,
@@ -92,11 +91,46 @@ export class MedicalRecord {
   transactionId: Types.ObjectId;
 
   @Prop({
-    type: Types.ObjectId,
-    ref: 'Appointment',
+    type: String,
     default: null,
   })
-  appointmentId: Types.ObjectId;
+  exitHealthStatus: string;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  exitTemperature: string;
+
+  @Prop({
+    type: Number,
+    default: null,
+  })
+  exitWeight: number;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  exitHealthInfo: string;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  roomNumber: string;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  roomType: string;
+
+  @Prop({
+    type: String,
+    default: null,
+  })
+  codeString: string;
 }
 
-export const MedicalRecordSchema = SchemaFactory.createForClass(MedicalRecord);
+export const PetHotelSchema = SchemaFactory.createForClass(PetHotel);

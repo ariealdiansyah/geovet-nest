@@ -17,6 +17,9 @@ import { MedicineModule } from './medicine/medicine.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { TransactionDetailModule } from './transaction-detail/transaction-detail.module';
 import { MedicalRecordModule } from './medical-record/medical-record.module';
+import { PetHotelModule } from './pet-hotel/pet-hotel.module';
+import { GroomingModule } from './grooming/grooming.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -40,6 +43,9 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
     TransactionModule,
     TransactionDetailModule,
     MedicalRecordModule,
+    PetHotelModule,
+    GroomingModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [

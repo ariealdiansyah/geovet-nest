@@ -4,24 +4,19 @@ import {
   IsDate,
   IsMongoId,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Types } from 'mongoose';
-import { CreateAppointmentDto } from 'src/appointment/dto/appointment.dto';
-import { CreatePetHotelDto } from 'src/pet-hotel/dto/pet-hotel.dto';
+import mongoose, { Types } from 'mongoose';
 import { CreateTransactionDto } from 'src/transaction/dto/transaction.dto';
 
-export class CreateMedicalRecordDto {
+export class CreatePetHotelDto {
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
-  medicalDate: Date;
-
-  @IsString()
-  @IsNotEmpty()
-  medicalNumber: string;
+  checkinDate: Date;
 
   @IsMongoId()
   @IsNotEmpty()
@@ -33,10 +28,6 @@ export class CreateMedicalRecordDto {
 
   @IsString()
   @IsNotEmpty()
-  age: string;
-
-  @IsString()
-  @IsNotEmpty()
   temperature: string;
 
   @IsString()
@@ -45,24 +36,42 @@ export class CreateMedicalRecordDto {
 
   @IsString()
   @IsNotEmpty()
-  anamnesis: string;
+  healthStatus: string;
 
   @IsString()
   @IsNotEmpty()
-  diagnosis: string;
+  healthInfo: string;
+
+  @IsNumber()
+  @IsOptional()
+  duration: number;
+
+  @IsString()
+  @IsOptional()
+  status: string;
 
   @IsString()
   @IsNotEmpty()
-  action: string;
+  roomNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  roomType: string;
 
   @IsString()
   @IsOptional()
-  medicalPrescription: string;
+  codeString: string;
+}
 
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => CreatePetHotelDto)
-  petHotel?: CreatePetHotelDto;
+export class ExitPetHotelDto {
+  @IsMongoId()
+  @IsNotEmpty()
+  _id: mongoose.Types.ObjectId;
+
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  checkoutDate: Date;
 
   @IsBoolean()
   @IsOptional()
@@ -73,8 +82,23 @@ export class CreateMedicalRecordDto {
   @Type(() => CreateTransactionDto)
   transaction?: CreateTransactionDto;
 
+  @IsNumber()
   @IsOptional()
-  @ValidateNested()
-  @Type(() => CreateAppointmentDto)
-  appointment?: CreateAppointmentDto;
+  totalPrice: number;
+
+  @IsString()
+  @IsOptional()
+  exitHealthStatus: string;
+
+  @IsString()
+  @IsOptional()
+  exitTemperature: string;
+
+  @IsNumber()
+  @IsOptional()
+  exitWeight: number;
+
+  @IsString()
+  @IsOptional()
+  exitHealthInfo: string;
 }

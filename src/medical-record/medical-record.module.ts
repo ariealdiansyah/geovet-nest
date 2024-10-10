@@ -9,6 +9,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PetModule } from 'src/pet/pet.module';
 import { CustomersModule } from 'src/customers/customers.module';
 import { TransactionModule } from 'src/transaction/transaction.module';
+import { PetHotelModule } from 'src/pet-hotel/pet-hotel.module';
+import { AppointmentModule } from 'src/appointment/appointment.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { TransactionModule } from 'src/transaction/transaction.module';
     PetModule,
     CustomersModule,
     TransactionModule,
+    PetHotelModule,
+    AppointmentModule,
   ],
   controllers: [MedicalRecordController],
   providers: [MedicalRecordService, Logger],

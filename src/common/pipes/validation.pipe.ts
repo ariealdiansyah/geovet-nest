@@ -14,11 +14,8 @@ export class CustomValidationPipe implements PipeTransform<any> {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
-    console.log('meta, val', metatype, value);
     const object = plainToInstance(metatype, value);
-    console.log('object', object);
     const errors = await validate(object);
-    console.log('error', errors);
     if (errors.length > 0) {
       throw new BadRequestException('Validation failed');
     }

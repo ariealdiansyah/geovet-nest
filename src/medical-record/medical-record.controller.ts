@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { MedicalRecordService } from './medical-record.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateMedicalRecordDto } from './dto/medical-record.dto';
@@ -10,7 +10,12 @@ export class MedicalRecordController {
   @Post()
   @UseGuards(AuthGuard('jwt'))
   async create(@Body() createMedical: CreateMedicalRecordDto) {
-    // update soon
-    return createMedical;
+    return await this.medicalRecordService.create(createMedical);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  async getPet(@Query() query: any) {
+    return await this.medicalRecordService.getByQuery(query);
   }
 }
