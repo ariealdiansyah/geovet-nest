@@ -214,11 +214,15 @@ export class MedicalRecordService {
           preserveNullAndEmptyArrays: true,
         },
       },
-
-      // Pagination: skip and limit stages
-      { $skip: (page - 1) * rowsPerPage },
-      { $limit: parseInt(rowsPerPage, 10) },
     ];
+
+    if (parseInt(rowsPerPage) > 0) {
+      pipeline.push(
+        // Pagination: skip and limit stages
+        { $skip: (parseInt(page) - 1) * parseInt(rowsPerPage) },
+        { $limit: parseInt(rowsPerPage) },
+      );
+    }
 
     // Fetch the data and total count using aggregation
     const [list, total] = await Promise.all([
@@ -228,8 +232,8 @@ export class MedicalRecordService {
 
     // Pagination response
     const pagination = {
-      page: parseInt(page, 10),
-      rowsPerPage: parseInt(rowsPerPage, 10),
+      page: parseInt(page),
+      rowsPerPage: parseInt(rowsPerPage),
       total,
     };
 
