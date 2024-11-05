@@ -112,6 +112,7 @@ export class MedicineService {
       {
         name: item.name,
         price: item.price,
+        buyPrice: item.buyPrice,
         type: item.type,
       },
       { new: true },

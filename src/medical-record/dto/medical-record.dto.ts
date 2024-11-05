@@ -44,6 +44,72 @@ export class CreateMedicalRecordDto {
   weight: string;
 
   @IsString()
+  @IsOptional()
+  anamnesis: string;
+
+  @IsString()
+  @IsOptional()
+  diagnosis: string;
+
+  @IsString()
+  @IsOptional()
+  action: string;
+
+  @IsString()
+  @IsOptional()
+  medicalPrescription: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreatePetHotelDto)
+  petHotel?: CreatePetHotelDto;
+
+  @IsBoolean()
+  @IsOptional()
+  hasTransaction: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateTransactionDto)
+  transaction?: CreateTransactionDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateAppointmentDto)
+  appointment?: CreateAppointmentDto;
+}
+
+export class UpdateMedicalRecordDto {
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  medicalDate: Date;
+
+  @IsString()
+  @IsNotEmpty()
+  medicalNumber: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  petId: Types.ObjectId;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  customerId: Types.ObjectId;
+
+  @IsString()
+  @IsNotEmpty()
+  age: string;
+
+  @IsString()
+  @IsNotEmpty()
+  temperature: string;
+
+  @IsString()
+  @IsNotEmpty()
+  weight: string;
+
+  @IsString()
   @IsNotEmpty()
   anamnesis: string;
 

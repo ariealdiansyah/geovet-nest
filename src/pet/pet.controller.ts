@@ -40,7 +40,7 @@ export class PetController {
     return this.petService.generateMedicalNumber(id);
   }
 
-  @Get('/:id')
+  @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   async getPetById(@Param('id') id: string) {
     return await this.petService.getPetById(id);

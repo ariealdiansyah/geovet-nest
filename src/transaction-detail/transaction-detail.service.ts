@@ -105,6 +105,7 @@ export class TransactionDetailService {
     const res = await this.transactionDetailModel
       .find({ transactionId: objectId })
       .populate('medicineId groceriesId')
+      .lean()
       .exec();
 
     if (!res || res.length === 0) {

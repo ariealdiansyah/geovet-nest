@@ -30,9 +30,21 @@ export class CreateTransactionDto {
   @IsOptional()
   discount: number;
 
+  @IsNumber()
+  @IsOptional()
+  change: number;
+
+  @IsNumber()
+  @IsOptional()
+  pay: number;
+
   @IsString()
   @IsOptional()
   status: string;
+
+  @IsString()
+  @IsOptional()
+  paymentMethod: string;
 
   @IsArray()
   @IsNotEmpty()

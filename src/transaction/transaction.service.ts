@@ -46,6 +46,7 @@ export class TransactionService {
         totalPrice,
         status,
         transactionDetails,
+        paymentMethod,
       } = dataTransaction;
       const newTransaction = new this.transactionModel({
         transactionDate,
@@ -53,6 +54,7 @@ export class TransactionService {
         status,
         totalPrice,
         discount,
+        paymentMethod,
       });
       const createdTransaction = await newTransaction.save({ session });
       let totalTransactionAmount = 0;
@@ -66,7 +68,7 @@ export class TransactionService {
         );
         totalTransactionAmount += total;
       }
-      createdTransaction.totalAmount = totalTransactionAmount;
+      createdTransaction.totalAmount = totalTransactionAmount - discount;
       const res = await createdTransaction.save({ session });
       if (!ses) {
         await session.commitTransaction();
@@ -100,8 +102,11 @@ export class TransactionService {
     const [list, total] = await Promise.all([
       this.transactionModel
         .find(filterQuery)
-        .skip((page - 1) * rowsPerPage)
+        .skip((parseInt(page) - 1) * parseInt(rowsPerPage))
         .limit(parseInt(rowsPerPage, 10))
+        .sort({
+          createdAt: -1,
+        })
         .lean()
         .exec(),
       this.transactionModel.countDocuments(filterQuery).exec(),
@@ -128,9 +133,18 @@ export class TransactionService {
         objectId,
       );
 
+    const list = transactionDetails.map((x: any) => {
+      return {
+        ...x,
+        name: x.groceriesId?.name ?? x.medicineId?.name,
+      };
+    });
+
+    console.log(list);
+
     return {
       ...transaction,
-      transactionDetails,
+      transactionDetails: list,
     };
   }
 
@@ -153,6 +167,8 @@ export class TransactionService {
         profit: { groceries: 0, medicine: 0 },
         itemsSold: { groceries: 0, medicine: 0 },
         totalTransactions: 0,
+        topGroceries: [],
+        topMedicine: [],
       };
     }
 
@@ -164,13 +180,21 @@ export class TransactionService {
     let groceriesSold = 0;
     let medicineSold = 0;
 
+    const groceriesCountMap = new Map<
+      string,
+      { name: string; quantity: number }
+    >();
+    const medicineCountMap = new Map<
+      string,
+      { name: string; quantity: number }
+    >();
+
     for (const transaction of transactions) {
       const details =
         await this.transactionDetailService.getTransactionDetailByTransactionId(
           transaction._id,
         );
 
-      // Track total discount from each transaction
       totalDiscounts += transaction.discount;
 
       for (const detail of details) {
@@ -180,20 +204,53 @@ export class TransactionService {
           totalGroceriesProfit +=
             (detail.price - groceryItem.buyPrice) * detail.amount;
           groceriesSold += detail.amount;
+
+          const groceryId = groceryItem._id.toString();
+          const groceryName = groceryItem.name;
+
+          if (groceriesCountMap.has(groceryId)) {
+            groceriesCountMap.get(groceryId)!.quantity += detail.amount;
+          } else {
+            groceriesCountMap.set(groceryId, {
+              name: groceryName,
+              quantity: detail.amount,
+            });
+          }
         } else if (detail.isMedicine && detail.medicineId) {
           const medicineItem = detail.medicineId as unknown as Medicine;
           totalMedicineIncome += detail.totalPrice;
           totalMedicineProfit +=
             (detail.price - medicineItem.buyPrice) * detail.amount;
           medicineSold += detail.amount;
+
+          const medicineId = medicineItem._id.toString();
+          const medicineName = medicineItem.name;
+
+          if (medicineCountMap.has(medicineId)) {
+            medicineCountMap.get(medicineId)!.quantity += detail.amount;
+          } else {
+            medicineCountMap.set(medicineId, {
+              name: medicineName,
+              quantity: detail.amount,
+            });
+          }
         }
       }
     }
 
     const totalIncome = totalGroceriesIncome + totalMedicineIncome;
-
     const totalProfit =
       totalGroceriesProfit + totalMedicineProfit - totalDiscounts;
+
+    // Get top 5 groceries by quantity sold
+    const topGroceries = Array.from(groceriesCountMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    // Get top 5 medicines by quantity sold
+    const topMedicine = Array.from(medicineCountMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
 
     return {
       totalIncome,
@@ -212,6 +269,8 @@ export class TransactionService {
         medicine: medicineSold,
       },
       totalTransactions: transactions.length,
+      topGroceries,
+      topMedicine,
     };
   }
 

@@ -12,7 +12,10 @@ import mongoose, { Model } from 'mongoose';
 import { PetService } from 'src/pet/pet.service';
 import { CustomersService } from 'src/customers/customers.service';
 import { TransactionService } from 'src/transaction/transaction.service';
-import { CreateMedicalRecordDto } from './dto/medical-record.dto';
+import {
+  CreateMedicalRecordDto,
+  UpdateMedicalRecordDto,
+} from './dto/medical-record.dto';
 import { PetHotelService } from 'src/pet-hotel/pet-hotel.service';
 import { AppointmentService } from 'src/appointment/appointment.service';
 
@@ -214,6 +217,7 @@ export class MedicalRecordService {
           preserveNullAndEmptyArrays: true,
         },
       },
+      { $sort: { createdAt: -1 } },
     ];
 
     if (parseInt(rowsPerPage) > 0) {
@@ -238,5 +242,79 @@ export class MedicalRecordService {
     };
 
     return { list, pagination };
+  }
+
+  async getDetail(id: string) {
+    const medicalRecord = await this.medicalModel
+      .findById(id)
+      .populate('petId customerId transactionId appointmentId petHotelId')
+      .lean()
+      .exec();
+
+    const petData = {
+      ...medicalRecord.petId,
+      createdAt: undefined,
+      updatedAt: undefined,
+      __v: undefined,
+    };
+
+    const customerData = {
+      ...medicalRecord.customerId,
+      createdAt: undefined,
+      updatedAt: undefined,
+      __v: undefined,
+    };
+
+    const transactionDetail = medicalRecord.transactionId
+      ? await this.transactionService.getDetailTransaction(
+          medicalRecord.transactionId._id as unknown as string,
+        )
+      : undefined;
+
+    const transactionId = transactionDetail
+      ? {
+          ...transactionDetail,
+          createdAt: undefined,
+          updatedAt: undefined,
+          __v: undefined,
+        }
+      : undefined;
+
+    const appointmentData = {
+      ...medicalRecord.appointmentId,
+      createdAt: undefined,
+      updatedAt: undefined,
+      __v: undefined,
+    };
+
+    const petHotelData = {
+      ...medicalRecord.petHotelId,
+      createdAt: undefined,
+      updatedAt: undefined,
+      __v: undefined,
+    };
+
+    const data = {
+      ...medicalRecord,
+      createdAt: undefined,
+      updatedAt: undefined,
+      __v: undefined,
+      pet: petData,
+      petId: undefined,
+      customer: customerData,
+      customerId: undefined,
+      transaction: transactionId,
+      transactionId: undefined,
+      appointment: appointmentData,
+      appointmentId: undefined,
+      petHotel: petHotelData,
+      petHotelId: undefined,
+    };
+
+    return data;
+  }
+
+  async update(id: string, updateMedicalRecord: UpdateMedicalRecordDto) {
+    return `${id} + ${JSON.stringify(updateMedicalRecord)}`;
   }
 }

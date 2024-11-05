@@ -1,8 +1,8 @@
 export enum PetType {
-  Kucing = 'KCG',
-  Ayam = 'AYM',
-  ExoPet = 'EXO',
-  Ternak = 'FRM',
+  Kucing = 'KC',
+  Ayam = 'AY',
+  ExoPet = 'EX',
+  Ternak = 'FM',
 }
 
 export enum PetSex {
