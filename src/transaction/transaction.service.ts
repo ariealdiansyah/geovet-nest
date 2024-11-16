@@ -180,6 +180,11 @@ export class TransactionService {
     let groceriesSold = 0;
     let medicineSold = 0;
 
+    const paymentMethodSummary = {
+      groceries: { cash: 0, transfer: 0, qris: 0 },
+      medicine: { cash: 0, transfer: 0, qris: 0 },
+    };
+
     const groceriesCountMap = new Map<
       string,
       { name: string; quantity: number }
@@ -209,12 +214,23 @@ export class TransactionService {
           const groceryName = groceryItem.name;
 
           if (groceriesCountMap.has(groceryId)) {
-            groceriesCountMap.get(groceryId)!.quantity += detail.amount;
+            groceriesCountMap.get(groceryId).quantity += detail.amount;
           } else {
             groceriesCountMap.set(groceryId, {
               name: groceryName,
               quantity: detail.amount,
             });
+          }
+          switch (transaction.paymentMethod) {
+            case 'Cash':
+              paymentMethodSummary.groceries.cash += detail.totalPrice;
+              break;
+            case 'tf':
+              paymentMethodSummary.groceries.transfer += detail.totalPrice;
+              break;
+            case 'qris':
+              paymentMethodSummary.groceries.qris += detail.totalPrice;
+              break;
           }
         } else if (detail.isMedicine && detail.medicineId) {
           const medicineItem = detail.medicineId as unknown as Medicine;
@@ -227,12 +243,24 @@ export class TransactionService {
           const medicineName = medicineItem.name;
 
           if (medicineCountMap.has(medicineId)) {
-            medicineCountMap.get(medicineId)!.quantity += detail.amount;
+            medicineCountMap.get(medicineId).quantity += detail.amount;
           } else {
             medicineCountMap.set(medicineId, {
               name: medicineName,
               quantity: detail.amount,
             });
+          }
+
+          switch (transaction.paymentMethod) {
+            case 'Cash':
+              paymentMethodSummary.medicine.cash += detail.totalPrice;
+              break;
+            case 'tf':
+              paymentMethodSummary.medicine.transfer += detail.totalPrice;
+              break;
+            case 'qris':
+              paymentMethodSummary.medicine.qris += detail.totalPrice;
+              break;
           }
         }
       }
@@ -241,28 +269,32 @@ export class TransactionService {
     const totalIncome = totalGroceriesIncome + totalMedicineIncome;
     const totalProfit =
       totalGroceriesProfit + totalMedicineProfit - totalDiscounts;
-
+    const halfDiscount = totalDiscounts / 2;
     // Get top 5 groceries by quantity sold
-    const topGroceries = Array.from(groceriesCountMap.values())
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 5);
+    const topGroceries = Array.from(groceriesCountMap.values()).sort(
+      (a, b) => b.quantity - a.quantity,
+    );
+    // .slice(0, 5);
 
     // Get top 5 medicines by quantity sold
-    const topMedicine = Array.from(medicineCountMap.values())
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 5);
+    const topMedicine = Array.from(medicineCountMap.values()).sort(
+      (a, b) => b.quantity - a.quantity,
+    );
+    // .slice(0, 5);
 
     return {
       totalIncome,
       totalProfit,
       totalDiscounts,
+      totalGroceriesProfit,
+      totalMedicineProfit,
       income: {
         groceries: totalGroceriesIncome,
         medicine: totalMedicineIncome,
       },
       profit: {
-        groceries: totalGroceriesProfit,
-        medicine: totalMedicineProfit,
+        groceries: totalGroceriesProfit - halfDiscount,
+        medicine: totalMedicineProfit - halfDiscount,
       },
       itemsSold: {
         groceries: groceriesSold,
@@ -271,6 +303,10 @@ export class TransactionService {
       totalTransactions: transactions.length,
       topGroceries,
       topMedicine,
+      paymentMethodSummary: {
+        groceries: paymentMethodSummary.groceries,
+        medicine: paymentMethodSummary.medicine,
+      },
     };
   }
 

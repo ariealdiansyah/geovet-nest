@@ -16,6 +16,7 @@ export class Transaction {
   @Prop({
     type: Number,
     default: 0,
+    min: -Infinity,
   })
   totalAmount: number;
 

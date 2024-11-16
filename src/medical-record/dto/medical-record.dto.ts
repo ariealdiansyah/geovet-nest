@@ -36,11 +36,11 @@ export class CreateMedicalRecordDto {
   age: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   temperature: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   weight: string;
 
   @IsString()
@@ -86,7 +86,7 @@ export class UpdateMedicalRecordDto {
   medicalDate: Date;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   medicalNumber: string;
 
   @IsMongoId()
@@ -125,19 +125,23 @@ export class UpdateMedicalRecordDto {
   @IsOptional()
   medicalPrescription: string;
 
+  @IsMongoId()
+  @IsOptional()
+  transactionId: Types.ObjectId;
+
   @IsOptional()
   @ValidateNested()
   @Type(() => CreatePetHotelDto)
   petHotel?: CreatePetHotelDto;
 
-  @IsBoolean()
-  @IsOptional()
-  hasTransaction: boolean;
+  // @IsBoolean()
+  // @IsOptional()
+  // hasTransaction: boolean;
 
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => CreateTransactionDto)
-  transaction?: CreateTransactionDto;
+  // @IsOptional()
+  // @ValidateNested()
+  // @Type(() => CreateTransactionDto)
+  // transaction?: CreateTransactionDto;
 
   @IsOptional()
   @ValidateNested()

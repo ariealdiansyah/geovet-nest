@@ -280,19 +280,23 @@ export class MedicalRecordService {
         }
       : undefined;
 
-    const appointmentData = {
-      ...medicalRecord.appointmentId,
-      createdAt: undefined,
-      updatedAt: undefined,
-      __v: undefined,
-    };
+    const appointmentData = medicalRecord.appointmentId
+      ? {
+          ...medicalRecord.appointmentId,
+          createdAt: undefined,
+          updatedAt: undefined,
+          __v: undefined,
+        }
+      : undefined;
 
-    const petHotelData = {
-      ...medicalRecord.petHotelId,
-      createdAt: undefined,
-      updatedAt: undefined,
-      __v: undefined,
-    };
+    const petHotelData = medicalRecord.petHotelId
+      ? {
+          ...medicalRecord.petHotelId,
+          createdAt: undefined,
+          updatedAt: undefined,
+          __v: undefined,
+        }
+      : undefined;
 
     const data = {
       ...medicalRecord,
@@ -315,6 +319,40 @@ export class MedicalRecordService {
   }
 
   async update(id: string, updateMedicalRecord: UpdateMedicalRecordDto) {
-    return `${id} + ${JSON.stringify(updateMedicalRecord)}`;
+    const res = await this.medicalModel.findByIdAndUpdate(
+      {
+        _id: id as unknown as mongoose.Types.ObjectId,
+      },
+      {
+        $set: {
+          medicalDate: updateMedicalRecord.medicalDate,
+          petId: new mongoose.Types.ObjectId(updateMedicalRecord.petId),
+          customerId: new mongoose.Types.ObjectId(
+            updateMedicalRecord.customerId,
+          ),
+          age: updateMedicalRecord.age,
+          temperature: updateMedicalRecord.temperature,
+          weight: updateMedicalRecord.weight,
+          anamnesis: updateMedicalRecord.anamnesis,
+          diagnosis: updateMedicalRecord.diagnosis,
+          action: updateMedicalRecord.action,
+          medicalPrescription: updateMedicalRecord.medicalPrescription,
+          petHotel:
+            typeof updateMedicalRecord.petHotel === 'string'
+              ? new mongoose.Types.ObjectId(updateMedicalRecord.petHotel)
+              : undefined,
+          appointment:
+            typeof updateMedicalRecord.appointment === 'string'
+              ? new mongoose.Types.ObjectId(updateMedicalRecord.appointment)
+              : undefined,
+        },
+      },
+      { new: true, runValidators: true },
+    );
+    if (res) {
+      return res;
+    } else {
+      throw new InternalServerErrorException('Error Update Customer');
+    }
   }
 }

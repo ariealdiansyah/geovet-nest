@@ -65,11 +65,15 @@ export class GroceriesService {
     const { rowsPerPage = 10, page = 1, filter = '' } = query;
 
     const filterRegex = new RegExp(filter, 'i');
+    // const isNumericFilter = !isNaN(Number(filter));
+
     const filterQuery = {
       $or: [
         { name: filterRegex },
-        { phone: filterRegex },
-        { address: filterRegex },
+        { type: filterRegex },
+        // ...(isNumericFilter
+        //   ? [{ price: Number(filter) }]
+        //   : [{ price: filterRegex }]),
       ],
     };
 
@@ -78,6 +82,9 @@ export class GroceriesService {
         .find(filterQuery)
         .skip((page - 1) * rowsPerPage)
         .limit(parseInt(rowsPerPage, 10))
+        .sort({
+          createdAt: -1,
+        })
         .exec(),
       this.itemModel.countDocuments(filterQuery).exec(),
     ]);

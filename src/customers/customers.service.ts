@@ -83,6 +83,9 @@ export class CustomersService {
         .find(filterQuery)
         .skip((parseInt(page) - 1) * parseInt(rowsPerPage))
         .limit(parseInt(rowsPerPage, 10))
+        .sort({
+          createdAt: -1,
+        })
         // .populate('customerId') // add this if need populate data from other collection
         .exec(),
       this.customerModel.countDocuments(filterQuery).exec(),
