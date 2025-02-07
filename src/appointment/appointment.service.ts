@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Appointment } from './schema/appointment.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { CreateAppointmentDto } from './dto/appointment.dto';
 
 @Injectable()
@@ -31,7 +31,12 @@ export class AppointmentService {
     }
 
     try {
-      const appointment = new this.appointmentModel(createData);
+      const data = {
+        ...createData,
+        petId: new Types.ObjectId(createData.petId),
+        customerId: new Types.ObjectId(createData.customerId),
+      };
+      const appointment = new this.appointmentModel(data);
       const res = await appointment.save({ validateBeforeSave: true });
       return {
         _id: res._id,

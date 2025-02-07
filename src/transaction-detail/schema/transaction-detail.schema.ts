@@ -57,6 +57,12 @@ export class TransactionDetail {
     type: Number,
     default: 0,
   })
+  buyPrice: number;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
   totalPrice: number;
 }
 

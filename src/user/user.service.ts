@@ -113,6 +113,7 @@ export class UsersService {
         fullname: updateUserDto.fullname,
         nip: updateUserDto.nip,
         email: updateUserDto.email,
+        $inc: { __v: 1 },
       },
       { new: true, session },
     );

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { PetHotel } from './schema/pet-hotel.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { CreatePetHotelDto } from './dto/pet-hotel.dto';
 
 @Injectable()
@@ -31,7 +31,13 @@ export class PetHotelService {
     }
 
     try {
-      const petHotel = new this.petHotelModel(createData);
+      const data = {
+        ...createData,
+        petId: new Types.ObjectId(createData.petId),
+        customerId: new Types.ObjectId(createData.customerId),
+      };
+
+      const petHotel = new this.petHotelModel(data);
       const res = await petHotel.save({ validateBeforeSave: true });
       if (!ses) {
         await session.commitTransaction();

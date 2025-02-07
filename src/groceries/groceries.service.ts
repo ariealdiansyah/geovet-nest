@@ -122,6 +122,7 @@ export class GroceriesService {
         buyPrice: item.buyPrice,
         price: item.price,
         type: item.type,
+        $inc: { __v: 1 },
       },
       { new: true },
     );

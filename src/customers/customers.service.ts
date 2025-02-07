@@ -124,6 +124,7 @@ export class CustomersService {
           phone: customer.phone,
           address: customer.address,
           memberType: customer.memberType,
+          $inc: { __v: 1 },
         },
         { new: true },
       );

@@ -179,10 +179,11 @@ export class TransactionService {
     let totalDiscounts = 0;
     let groceriesSold = 0;
     let medicineSold = 0;
+    let kenzoNeed = 0;
 
     const paymentMethodSummary = {
-      groceries: { cash: 0, transfer: 0, qris: 0 },
-      medicine: { cash: 0, transfer: 0, qris: 0 },
+      groceries: { cash: 0, transfer: 0, qris: 0, kenzo: 0 },
+      medicine: { cash: 0, transfer: 0, qris: 0, kenzo: 0 },
     };
 
     const groceriesCountMap = new Map<
@@ -205,22 +206,10 @@ export class TransactionService {
       for (const detail of details) {
         if (detail.isGroceries && detail.groceriesId) {
           const groceryItem = detail.groceriesId as unknown as Groceries;
-          totalGroceriesIncome += detail.totalPrice;
-          totalGroceriesProfit +=
-            (detail.price - groceryItem.buyPrice) * detail.amount;
-          groceriesSold += detail.amount;
 
           const groceryId = groceryItem._id.toString();
           const groceryName = groceryItem.name;
 
-          if (groceriesCountMap.has(groceryId)) {
-            groceriesCountMap.get(groceryId).quantity += detail.amount;
-          } else {
-            groceriesCountMap.set(groceryId, {
-              name: groceryName,
-              quantity: detail.amount,
-            });
-          }
           switch (transaction.paymentMethod) {
             case 'Cash':
               paymentMethodSummary.groceries.cash += detail.totalPrice;
@@ -231,12 +220,33 @@ export class TransactionService {
             case 'qris':
               paymentMethodSummary.groceries.qris += detail.totalPrice;
               break;
+            case 'kenzo':
+              kenzoNeed += detail.totalPrice;
+              break;
+          }
+
+          if (transaction.paymentMethod !== 'kenzo') {
+            totalGroceriesIncome += detail.totalPrice;
+            totalGroceriesProfit +=
+              (detail.price - (detail.buyPrice ?? groceryItem.buyPrice)) *
+              detail.amount;
+          }
+          groceriesSold += detail.amount;
+
+          if (groceriesCountMap.has(groceryId)) {
+            groceriesCountMap.get(groceryId).quantity += detail.amount;
+          } else {
+            groceriesCountMap.set(groceryId, {
+              name: groceryName,
+              quantity: detail.amount,
+            });
           }
         } else if (detail.isMedicine && detail.medicineId) {
           const medicineItem = detail.medicineId as unknown as Medicine;
           totalMedicineIncome += detail.totalPrice;
           totalMedicineProfit +=
-            (detail.price - medicineItem.buyPrice) * detail.amount;
+            (detail.price - (detail.buyPrice ?? medicineItem.buyPrice)) *
+            detail.amount;
           medicineSold += detail.amount;
 
           const medicineId = medicineItem._id.toString();
@@ -269,7 +279,6 @@ export class TransactionService {
     const totalIncome = totalGroceriesIncome + totalMedicineIncome;
     const totalProfit =
       totalGroceriesProfit + totalMedicineProfit - totalDiscounts;
-    const halfDiscount = totalDiscounts / 2;
     // Get top 5 groceries by quantity sold
     const topGroceries = Array.from(groceriesCountMap.values()).sort(
       (a, b) => b.quantity - a.quantity,
@@ -286,15 +295,16 @@ export class TransactionService {
       totalIncome,
       totalProfit,
       totalDiscounts,
-      totalGroceriesProfit,
-      totalMedicineProfit,
+      totalGroceriesProfit: totalGroceriesProfit,
+      totalMedicineProfit: totalMedicineProfit - totalDiscounts,
+      kenzoNeed,
       income: {
         groceries: totalGroceriesIncome,
         medicine: totalMedicineIncome,
       },
       profit: {
-        groceries: totalGroceriesProfit - halfDiscount,
-        medicine: totalMedicineProfit - halfDiscount,
+        groceries: totalGroceriesProfit,
+        medicine: totalMedicineProfit,
       },
       itemsSold: {
         groceries: groceriesSold,

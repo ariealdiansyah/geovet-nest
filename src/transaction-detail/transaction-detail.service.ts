@@ -32,6 +32,7 @@ export class TransactionDetailService {
   ) {
     try {
       let price = 0;
+      let buyPrice = 0;
       let dataItem: any;
       if (data.isGroceries && data.groceriesId) {
         dataItem = await this.groceriesService.getItemById(
@@ -41,7 +42,6 @@ export class TransactionDetailService {
           throw new NotFoundException(
             `Groceries item with ID ${data.groceriesId} not found`,
           );
-        price = dataItem.price;
       } else if (data.isMedicine && data.medicineId) {
         dataItem = await this.medicineService.getItemById(
           data.medicineId as unknown as string,
@@ -50,22 +50,28 @@ export class TransactionDetailService {
           throw new NotFoundException(
             `Medicine item with ID ${data.medicineId} not found`,
           );
-        price = dataItem.price;
       } else {
         throw new BadRequestException(
           'Make sure you pick between pet shop or medicine item',
         );
       }
+      price = dataItem.price;
+      buyPrice = dataItem.buyPrice;
       const totalPrice = price * data.amount;
 
       const dataInput = {
         transactionId: data.transactionId,
         isMedicine: data.isMedicine,
-        medicineId: data.medicineId,
+        medicineId: data.isMedicine
+          ? new Types.ObjectId(data.medicineId)
+          : null,
         isGroceries: data.isGroceries,
-        groceriesId: data.groceriesId,
+        groceriesId: data.isGroceries
+          ? new Types.ObjectId(data.groceriesId)
+          : null,
         amount: data.amount,
-        price: price,
+        price,
+        buyPrice,
         totalPrice: totalPrice,
       };
 
@@ -77,7 +83,7 @@ export class TransactionDetailService {
             data.groceriesId as unknown as string,
             {
               ...dataItem,
-              stock: dataItem.stock - 1,
+              stock: dataItem.stock - data.amount,
             },
           );
 

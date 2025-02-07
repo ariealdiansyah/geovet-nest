@@ -114,6 +114,7 @@ export class MedicineService {
         price: item.price,
         buyPrice: item.buyPrice,
         type: item.type,
+        $inc: { __v: 1 },
       },
       { new: true },
     );

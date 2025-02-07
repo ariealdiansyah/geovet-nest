@@ -166,7 +166,11 @@ export class MedicalRecordService {
       // Filter based on customer name or pet name using regex
       {
         $match: {
-          $or: [{ 'customer.name': filterRegex }, { 'pet.name': filterRegex }],
+          $or: [
+            { 'customer.name': filterRegex },
+            { 'pet.name': filterRegex },
+            { 'pet.medicalNumber': filterRegex },
+          ],
         },
       },
 
@@ -346,6 +350,7 @@ export class MedicalRecordService {
               ? new mongoose.Types.ObjectId(updateMedicalRecord.appointment)
               : undefined,
         },
+        $inc: { __v: 1 },
       },
       { new: true, runValidators: true },
     );
